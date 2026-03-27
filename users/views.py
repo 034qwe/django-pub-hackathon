@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth import logout, authenticate
 from django.contrib.auth.views import LoginView as DjangoLoginView
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
@@ -10,10 +10,7 @@ from django.views.generic import CreateView, TemplateView
 from ecp_lib.auth import authenticate_with_private_key, read_private_key
 from ecp_lib.auth import create_user_keys
 
-
 import logging
-
-
 
 from .forms import RegisterForm, LoginForm
 
@@ -27,23 +24,13 @@ class LoginView(DjangoLoginView):
     redirect_authenticated_user = True
 
     def form_valid(self, form):
-        
+
         username = form.cleaned_data.get("username")
         password = form.cleaned_data.get("password")
         key_file = self.request.FILES.get("key_file")
-        ip = self.request.META.get("REMOTE_ADDR")
-
-        logger.info(f"Login attempt | user={username} | ip={ip}")
 
         if not key_file:
-            logger.warning(f"No key file provided | user={username} | ip={ip}")
             form.add_error("key_file", "Файл ключа обязателен")
-            return self.form_invalid(form)
-
-   
-        user = authenticate(self.request, username=username, password=password)
-        if user is None:
-            sec_logger.warning(f"Invalid credentials | user={username} | ip={ip}")
             return self.form_invalid(form)
 
         logger.info(f"Password verified | user={username}")
@@ -52,9 +39,6 @@ class LoginView(DjangoLoginView):
             private_key = read_private_key(key_file)
             logger.debug(f"Private key file received | user={username}")
 
-
-            
-
             ecp_user, error= authenticate_with_private_key(
                 self.request,
                 username=username,
@@ -62,13 +46,13 @@ class LoginView(DjangoLoginView):
                 private_key=private_key
             )
 
-            if user is None:
+            if ecp_user is None:
                 form.add_error(None, error)
                 return self.form_invalid(form)
             # logger.info(f"ECP authentication success | user={username} | ip={ip}")
             return super().form_valid(form)
 
-            
+
         except Exception as e:
             logger.exception(f"ECP verification error | user={username}")
             form.add_error(None, f"Помилка перевірки ключа")
