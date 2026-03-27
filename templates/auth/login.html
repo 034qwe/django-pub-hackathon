@@ -6,7 +6,7 @@
     <title>Вхід</title>
     <script src="https://cdn.tailwindcss.com"></script>
     {% if request.GET.get('registered') == '1' %}
-      <meta http-equiv="refresh" content="1; url={{ url('download_key') }}">
+    <meta http-equiv="refresh" content="1; url={{ url('download_key') }}" />
     {% endif %}
   </head>
   <body
@@ -25,12 +25,12 @@
           </p>
 
           {% if request.GET.get('registered') == '1' %}
-            <div class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-              Реєстрація успішна! Завантаження ключа почнеться автоматично.
-            </div>
-          {% endif %}
-
-          {% if form and form.errors %}
+          <div
+            class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+          >
+            Реєстрація успішна! Завантаження ключа почнеться автоматично.
+          </div>
+          {% endif %} {% if form and form.errors %}
           <div
             class="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
           >
@@ -39,8 +39,8 @@
             non_field_errors %}
             <div>{{ error }}</div>
             {% endfor %} {% endif %} {# Check if field errors exist and call the
-            method #} {% if form.private_key_file.errors %} {% for error in
-            form.private_key_file.errors() %}
+            method #} {% if form.key_file.errors %} {% for error in
+            form.key_file.errors() %}
             <div>{{ error }}</div>
             {% endfor %} {% endif %}
           </div>
@@ -89,7 +89,7 @@
 
             <div>
               <label
-                for="private_key_file"
+                for="key_file"
                 class="mb-1 block text-sm font-medium text-slate-700"
               >
                 Прикріпіть файл ключа (.pem)
